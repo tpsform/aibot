@@ -1,194 +1,219 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>AI Chat Pro - Turbo Chatbot</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: linear-gradient(to right, #eef2f3, #8e9eab);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: #333;
-    }.chat-container {
-  width: 100%;
-  max-width: 700px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-}
-
-h1 {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 20px;
-  font-size: 2em;
-}
-
-.model-selector {
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.model-selector select {
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1em;
-  width: 100%;
-  max-width: 500px;
-}
-
-.chat-box {
-  height: 400px;
-  overflow-y: auto;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 15px;
-  background: #f9f9f9;
-  margin-bottom: 15px;
-}
-
-.message {
-  margin-bottom: 15px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  max-width: 80%;
-  word-wrap: break-word;
-  animation: fadeIn 0.3s ease;
-}
-
-.user-message {
-  background: #d0ebff;
-  margin-left: auto;
-  text-align: right;
-}
-
-.ai-message {
-  background: #f1f0f0;
-  margin-right: auto;
-  text-align: left;
-}
-
-.input-area {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-textarea {
-  resize: none;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1em;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-button {
-  padding: 12px 20px;
-  background: #2c3e50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-button:hover {
-  background: #1a252f;
-}
-
-.loading {
-  opacity: 0.6;
-  font-style: italic;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Pro - Advanced Turbo Chatbot</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-  <div class="chat-container">
-    <h1>Boisar AI Chat</h1>
-    <div class="model-selector">
-      <select id="model-select">
-        <option value="openrouter:openai/gpt-4o-mini">GPT-4o Mini (OpenAI)</option>
-        <option value="openrouter:anthropic/claude-3.7-sonnet">Claude 3.7 Sonnet (Anthropic)</option>
-        <option value="openrouter:meta-llama/llama-3.1-8b-instruct">Llama 3.1 (Meta)</option>
-      </select>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">Chat History</h2>
+                <button class="btn btn--secondary btn--sm sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <button class="btn btn--primary btn--full-width new-chat-btn" id="newChatBtn">
+                    <i class="fas fa-plus"></i> New Chat
+                </button>
+                
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search conversations...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <div class="chat-list" id="chatList">
+                    <!-- Chat history items will be populated here -->
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="export-section">
+                    <h4>Export Options</h4>
+                    <div class="export-buttons">
+                        <button class="btn btn--outline btn--sm export-btn" data-format="markdown">
+                            📝 MD
+                        </button>
+                        <button class="btn btn--outline btn--sm export-btn" data-format="json">
+                            📊 JSON
+                        </button>
+                        <button class="btn btn--outline btn--sm export-btn" data-format="txt">
+                            📄 TXT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="btn btn--secondary btn--sm menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="app-title">AI Chat Pro</h1>
+                </div>
+                
+                <div class="header-center">
+                    <div class="model-selector">
+                        <select class="form-control model-select" id="modelSelect">
+                            <option value="openrouter:openai/gpt-4o-mini">GPT-4o Mini (OpenAI)</option>
+                            <option value="openrouter:openai/gpt-4o">GPT-4o (OpenAI)</option>
+                            <option value="openrouter:openai/o1-mini">o1-mini (OpenAI)</option>
+                            <option value="openrouter:anthropic/claude-3-7-sonnet">Claude 3.7 Sonnet (Anthropic)</option>
+                            <option value="openrouter:meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Meta)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button class="btn btn--secondary btn--sm theme-toggle" id="themeToggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn btn--secondary btn--sm settings-toggle" id="settingsToggle" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Chat Area -->
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="welcome-message">
+                        <div class="welcome-content">
+                            <h2>Welcome to AI Chat Pro</h2>
+                            <p>Choose an AI model and start your conversation. Use <kbd>Ctrl+Enter</kbd> to send messages quickly.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="scroll-to-bottom" id="scrollToBottom">
+                    <button class="btn btn--primary btn--sm">
+                        <i class="fas fa-arrow-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        class="form-control message-input" 
+                        id="messageInput" 
+                        placeholder="Type your message here... (Ctrl+Enter to send)"
+                        rows="3"
+                    ></textarea>
+                    <div class="input-actions">
+                        <button class="btn btn--secondary btn--sm attach-btn" title="Attach File (Coming Soon)">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <button class="btn btn--secondary btn--sm voice-btn" title="Voice Input (Coming Soon)">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button class="btn btn--primary send-btn" id="sendBtn">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Panel -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">
+                <h3>Settings</h3>
+                <button class="btn btn--secondary btn--sm close-settings" id="closeSettings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h4>Appearance</h4>
+                    <div class="form-group">
+                        <label class="form-label">Theme</label>
+                        <select class="form-control" id="themeSelect">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="auto">Auto</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Chat Behavior</h4>
+                    <div class="form-group">
+                        <label class="form-label">Stream Responses</label>
+                        <input type="checkbox" id="streamingEnabled" checked>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Show Timestamps</label>
+                        <input type="checkbox" id="showTimestamps" checked>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Auto-scroll</label>
+                        <input type="checkbox" id="autoScroll" checked>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h4>Keyboard Shortcuts</h4>
+                    <div class="shortcuts-list">
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+Shift+N</kbd>
+                            <span>New Chat</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+Enter</kbd>
+                            <span>Send Message</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+Shift+E</kbd>
+                            <span>Export Chat</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+Shift+D</kbd>
+                            <span>Toggle Dark Mode</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl+Shift+S</kbd>
+                            <span>Toggle Sidebar</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Escape</kbd>
+                            <span>Close Panels</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Connecting...</span>
+            </div>
+        </div>
     </div>
-    <div class="chat-box" id="chat-box"></div>
-    <div class="input-area">
-      <textarea id="prompt" placeholder="Type your message here..." rows="3"></textarea>
-      <button id="send-button"><i class="fas fa-paper-plane"></i> Send</button>
-    </div>
-  </div>
-  <script src="https://js.puter.com/v2/"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const chatBox = document.getElementById('chat-box');
-      const promptInput = document.getElementById('prompt');
-      const sendButton = document.getElementById('send-button');
-      const modelSelect = document.getElementById('model-select');function addMessage(text, isUser, isLoading = false) {
-    const message = document.createElement('div');
-    message.className = `message ${isUser ? 'user-message' : 'ai-message'} ${isLoading ? 'loading' : ''}`;
-    message.textContent = text;
-    chatBox.appendChild(message);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    return message;
-  }
 
-  async function sendPrompt() {
-    const prompt = promptInput.value.trim();
-    if (!prompt) return;
-
-    addMessage(prompt, true);
-    promptInput.value = '';
-
-    const loadingMsg = addMessage('Thinking...', false, true);
-    const model = modelSelect.value;
-
-    try {
-      const response = await puter.ai.chat(prompt, { model });
-      loadingMsg.remove();
-      addMessage(response, false);
-    } catch (error) {
-      loadingMsg.remove();
-      addMessage('❌ Error: ' + (error.message || 'Something went wrong. Please try again.'), false);
-      console.error('AI Chat Error:', error);
-    }
-  }
-
-  sendButton.addEventListener('click', sendPrompt);
-
-  promptInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendPrompt();
-    }
-  });
-});
-
-  </script>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="app.js"></script>
 </body>
 </html>
