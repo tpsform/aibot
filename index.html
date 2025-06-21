@@ -1,219 +1,751 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chat Pro - Advanced Turbo Chatbot</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <meta charset="UTF-8">
+  <title>AI Chat Pro - Next Level</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2c3e50;
+      --accent: #4f8cff;
+      --bg: #eef2f3;
+      --bg-dark: #181b1f;
+      --surface: #fff;
+      --surface-dark: #23272f;
+      --user: #d0ebff;
+      --ai: #f1f0f0;
+      --ai-dark: #23272f;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.14);
+      --transition: 0.2s;
+      --side-width: 90vw;
+      --side-width-desktop: 340px;
+    }
+    [data-theme="dark"] {
+      --bg: #181b1f;
+      --surface: #23272f;
+      --user: #2d5e85;
+      --ai: #23272f;
+      --primary: #d0ebff;
+      --accent: #4f8cff;
+      color-scheme: dark;
+      color: #e7eaf0;
+    }
+    html, body { height: 100%; margin: 0; padding: 0; }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg);
+      color: var(--primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.4s;
+      overflow: hidden;
+    }
+    #app-container {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: var(--bg);
+      transition: background 0.4s;
+    }
+    /* Side Panel */
+    #side-panel {
+      width: var(--side-width);
+      max-width: var(--side-width-desktop);
+      background: var(--surface);
+      border-right: 1px solid #e3e7ee;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      position: fixed;
+      top: 0; left: -100vw; /* hidden by default */
+      height: 100vh;
+      transition: left 0.3s;
+    }
+    #side-panel.open { left: 0; }
+    #side-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 18px 10px 18px;
+      background: transparent;
+      border-bottom: 1px solid #e3e7ee;
+    }
+    #side-header h2 {
+      font-size: 1.1em; margin: 0; color: var(--primary);
+    }
+    #chats-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 0;
+    }
+    .chat-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      background: none;
+      transition: background 0.2s;
+      font-size: 1.04em;
+    }
+    .chat-item.active {
+      background: var(--ai);
+      border-left: 3px solid var(--accent);
+      font-weight: 500;
+    }
+    .chat-item .fa-comments { color: var(--accent); }
+    .chat-item .delete-chat {
+      margin-left: auto; color: #b0b8c6; font-size: 1em;
+      background: none; border: none; cursor: pointer;
+      transition: color 0.2s;
+    }
+    .chat-item .delete-chat:hover { color: #ff4d4f; }
+    #side-panel .side-footer {
+      padding: 10px 18px;
+      border-top: 1px solid #e3e7ee;
+      background: var(--surface);
+      display: flex; gap: 10px;
+    }
+    #side-panel .side-footer button {
+      flex: 1;
+      padding: 10px 0;
+      background: var(--accent);
+      color: #fff; border: none; border-radius: 8px;
+      font-size: 1em; cursor: pointer;
+      transition: background 0.3s;
+    }
+    #side-panel .side-footer button.settings {
+      background: #e3e7ee; color: var(--primary);
+    }
+    /* Main Chat */
+    #main-panel {
+      flex: 1;
+      display: flex; flex-direction: column;
+      min-width: 0; min-height: 100vh;
+      margin-left: 0;
+      transition: margin-left 0.3s;
+    }
+    #main-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 14px 10px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid #e3e7ee;
+      position: sticky; top: 0; z-index: 2;
+    }
+    #main-header .left {
+      display: flex; align-items: center; gap: 12px;
+    }
+    #main-header .menu-btn {
+      font-size: 1.3em; color: var(--accent);
+      background: none; border: none; cursor: pointer;
+    }
+    #main-header h1 {
+      font-size: 1.2em; margin: 0; color: var(--primary);
+      letter-spacing: -1px;
+    }
+    #main-header .right {
+      display: flex; align-items: center; gap: 10px;
+    }
+    #main-header .theme-toggle {
+      font-size: 1.2em; background: none; border: none;
+      color: var(--accent); cursor: pointer;
+    }
+    #main-header .settings-btn {
+      font-size: 1.2em; background: none; border: none;
+      color: #b0b8c6; cursor: pointer;
+    }
+    /* Chat Area */
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 8px 10px 8px;
+      background: var(--ai);
+      transition: background 0.4s;
+      position: relative;
+      min-height: 0;
+    }
+    [data-theme="dark"] #chat-box { background: var(--ai-dark); }
+    .message-row {
+      display: flex; align-items: flex-end; gap: 10px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.25s;
+    }
+    .message-row.user { flex-direction: row-reverse; }
+    .avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.1em;
+      flex-shrink: 0;
+    }
+    .message-bubble {
+      padding: 11px 15px;
+      border-radius: var(--radius);
+      max-width: 80vw;
+      min-width: 40px;
+      background: var(--user);
+      color: var(--primary);
+      font-size: 1.04em;
+      position: relative;
+      word-break: break-word;
+      box-shadow: 0 2px 10px rgba(60,60,60,0.04);
+      transition: background 0.4s;
+    }
+    .message-row.ai .message-bubble {
+      background: var(--surface);
+      color: var(--primary);
+    }
+    [data-theme="dark"] .message-row.ai .message-bubble {
+      background: var(--ai-dark); color: #e7eaf0;
+    }
+    .message-actions {
+      display: flex; gap: 7px; margin-top: 3px;
+      font-size: 0.92em;
+    }
+    .message-actions button {
+      background: none; border: none; color: var(--accent);
+      cursor: pointer; padding: 0 3px;
+      transition: color var(--transition);
+    }
+    .message-actions button:hover { color: #ffb300; }
+    .typing-indicator {
+      font-style: italic; color: #888;
+      margin-left: 45px; margin-bottom: 10px;
+      animation: blink 1s infinite;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes blink { 0%,100% {opacity: 0.5;} 50% {opacity: 1;} }
+    .scroll-bottom {
+      position: absolute; right: 10px; bottom: 10px;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 50%;
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1em; cursor: pointer;
+      box-shadow: 0 2px 10px rgba(70,110,255,0.08);
+      opacity: 0.85; z-index: 10;
+      transition: background 0.3s, opacity 0.2s;
+      outline: none;
+    }
+    .scroll-bottom:hover { background: #1a252f; opacity: 1; }
+    /* Input Area */
+    #input-area {
+      display: flex; gap: 8px; align-items: flex-end;
+      padding: 10px 8px 12px 8px;
+      border-top: 1px solid #e3e7ee;
+      background: var(--surface);
+      transition: background 0.4s;
+    }
+    #input-area textarea {
+      resize: none;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1.06em;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 36px; max-height: 90px;
+      background: var(--surface);
+      color: var(--primary);
+      transition: background 0.4s, color 0.4s;
+    }
+    #input-area button {
+      padding: 10px 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.06em;
+      display: flex; align-items: center; gap: 7px;
+      transition: background 0.3s;
+    }
+    #input-area button:disabled {
+      background: #b0b8c6; cursor: not-allowed;
+    }
+    /* Settings Modal */
+    #settings-modal {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.18);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    #settings-modal.open { display: flex; }
+    #settings-content {
+      background: var(--surface); color: var(--primary);
+      border-radius: 14px; box-shadow: var(--shadow);
+      padding: 28px 18px 18px 18px;
+      min-width: 90vw; max-width: 400px;
+      display: flex; flex-direction: column; gap: 18px;
+    }
+    #settings-content h2 { margin: 0 0 8px 0; font-size: 1.2em;}
+    #settings-content label { font-size: 1em; margin-bottom: 5px; }
+    #settings-content select, #settings-content input, #settings-content textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1em;
+      margin-bottom: 10px;
+      background: var(--surface);
+      color: var(--primary);
+    }
+    #settings-content .actions {
+      display: flex; gap: 10px; justify-content: flex-end;
+    }
+    #settings-content .actions button {
+      padding: 8px 18px;
+      border-radius: 8px; border: none;
+      font-size: 1em; cursor: pointer;
+      background: var(--accent); color: #fff;
+    }
+    #settings-content .actions button.cancel {
+      background: #e3e7ee; color: var(--primary);
+    }
+    /* Mobile first: Side panel overlays main */
+    @media (min-width: 800px) {
+      #side-panel {
+        position: static;
+        left: 0;
+        width: var(--side-width-desktop);
+        max-width: var(--side-width-desktop);
+        box-shadow: none;
+      }
+      #side-panel.open { left: 0; }
+      #main-panel { margin-left: var(--side-width-desktop); }
+    }
+    @media (max-width: 799px) {
+      #side-panel { width: var(--side-width); }
+      #main-panel { margin-left: 0; }
+    }
+    @media (max-width: 500px) {
+      #settings-content { min-width: 98vw; }
+      .message-bubble { max-width: 95vw;}
+    }
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2 class="sidebar-title">Chat History</h2>
-                <button class="btn btn--secondary btn--sm sidebar-toggle" id="sidebarToggle">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="sidebar-content">
-                <button class="btn btn--primary btn--full-width new-chat-btn" id="newChatBtn">
-                    <i class="fas fa-plus"></i> New Chat
-                </button>
-                
-                <div class="search-container">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search conversations...">
-                    <i class="fas fa-search search-icon"></i>
-                </div>
-                
-                <div class="chat-list" id="chatList">
-                    <!-- Chat history items will be populated here -->
-                </div>
-            </div>
-            
-            <div class="sidebar-footer">
-                <div class="export-section">
-                    <h4>Export Options</h4>
-                    <div class="export-buttons">
-                        <button class="btn btn--outline btn--sm export-btn" data-format="markdown">
-                            📝 MD
-                        </button>
-                        <button class="btn btn--outline btn--sm export-btn" data-format="json">
-                            📊 JSON
-                        </button>
-                        <button class="btn btn--outline btn--sm export-btn" data-format="txt">
-                            📄 TXT
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Header -->
-            <header class="header">
-                <div class="header-left">
-                    <button class="btn btn--secondary btn--sm menu-toggle" id="menuToggle">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1 class="app-title">AI Chat Pro</h1>
-                </div>
-                
-                <div class="header-center">
-                    <div class="model-selector">
-                        <select class="form-control model-select" id="modelSelect">
-                            <option value="openrouter:openai/gpt-4o-mini">GPT-4o Mini (OpenAI)</option>
-                            <option value="openrouter:openai/gpt-4o">GPT-4o (OpenAI)</option>
-                            <option value="openrouter:openai/o1-mini">o1-mini (OpenAI)</option>
-                            <option value="openrouter:anthropic/claude-3-7-sonnet">Claude 3.7 Sonnet (Anthropic)</option>
-                            <option value="openrouter:meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B (Meta)</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="header-right">
-                    <button class="btn btn--secondary btn--sm theme-toggle" id="themeToggle" title="Toggle Theme">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <button class="btn btn--secondary btn--sm settings-toggle" id="settingsToggle" title="Settings">
-                        <i class="fas fa-cog"></i>
-                    </button>
-                </div>
-            </header>
-
-            <!-- Chat Area -->
-            <div class="chat-container">
-                <div class="chat-messages" id="chatMessages">
-                    <div class="welcome-message">
-                        <div class="welcome-content">
-                            <h2>Welcome to AI Chat Pro</h2>
-                            <p>Choose an AI model and start your conversation. Use <kbd>Ctrl+Enter</kbd> to send messages quickly.</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="scroll-to-bottom" id="scrollToBottom">
-                    <button class="btn btn--primary btn--sm">
-                        <i class="fas fa-arrow-down"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Input Area -->
-            <div class="input-container">
-                <div class="input-wrapper">
-                    <textarea 
-                        class="form-control message-input" 
-                        id="messageInput" 
-                        placeholder="Type your message here... (Ctrl+Enter to send)"
-                        rows="3"
-                    ></textarea>
-                    <div class="input-actions">
-                        <button class="btn btn--secondary btn--sm attach-btn" title="Attach File (Coming Soon)">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <button class="btn btn--secondary btn--sm voice-btn" title="Voice Input (Coming Soon)">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <button class="btn btn--primary send-btn" id="sendBtn">
-                            <i class="fas fa-paper-plane"></i>
-                            <span>Send</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Settings Panel -->
-        <div class="settings-panel" id="settingsPanel">
-            <div class="settings-header">
-                <h3>Settings</h3>
-                <button class="btn btn--secondary btn--sm close-settings" id="closeSettings">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="settings-content">
-                <div class="settings-section">
-                    <h4>Appearance</h4>
-                    <div class="form-group">
-                        <label class="form-label">Theme</label>
-                        <select class="form-control" id="themeSelect">
-                            <option value="light">Light</option>
-                            <option value="dark">Dark</option>
-                            <option value="auto">Auto</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="settings-section">
-                    <h4>Chat Behavior</h4>
-                    <div class="form-group">
-                        <label class="form-label">Stream Responses</label>
-                        <input type="checkbox" id="streamingEnabled" checked>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Show Timestamps</label>
-                        <input type="checkbox" id="showTimestamps" checked>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Auto-scroll</label>
-                        <input type="checkbox" id="autoScroll" checked>
-                    </div>
-                </div>
-                
-                <div class="settings-section">
-                    <h4>Keyboard Shortcuts</h4>
-                    <div class="shortcuts-list">
-                        <div class="shortcut-item">
-                            <kbd>Ctrl+Shift+N</kbd>
-                            <span>New Chat</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>Ctrl+Enter</kbd>
-                            <span>Send Message</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>Ctrl+Shift+E</kbd>
-                            <span>Export Chat</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>Ctrl+Shift+D</kbd>
-                            <span>Toggle Dark Mode</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>Ctrl+Shift+S</kbd>
-                            <span>Toggle Sidebar</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <kbd>Escape</kbd>
-                            <span>Close Panels</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div id="app-container">
+    <!-- Side Panel -->
+    <nav id="side-panel">
+      <div id="side-header">
+        <h2><i class="fas fa-comments"></i> Chats</h2>
+        <button id="close-side" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="chats-list"></div>
+      <div class="side-footer">
+        <button id="new-chat"><i class="fas fa-plus"></i> New Chat</button>
+        <button class="settings" id="open-settings"><i class="fas fa-cog"></i></button>
+      </div>
+    </nav>
+    <!-- Main Panel -->
+    <main id="main-panel">
+      <header id="main-header">
+        <div class="left">
+          <button class="menu-btn" id="open-side" aria-label="Menu"><i class="fas fa-bars"></i></button>
+          <h1><i class="fas fa-bolt"></i> Turbo AI Chat</h1>
         </div>
-
-        <!-- Toast Container -->
-        <div class="toast-container" id="toastContainer"></div>
-
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" id="loadingOverlay">
-            <div class="loading-spinner">
-                <i class="fas fa-spinner fa-spin"></i>
-                <span>Connecting...</span>
-            </div>
+        <div class="right">
+          <button class="theme-toggle" id="theme-toggle" title="Toggle dark/light mode"><i class="fas fa-moon"></i></button>
+          <button class="settings-btn" id="open-settings2" title="Settings"><i class="fas fa-cog"></i></button>
         </div>
+      </header>
+      <section id="chat-box"></section>
+      <button class="scroll-bottom" id="scroll-bottom" title="Scroll to bottom" style="display:none"><i class="fas fa-arrow-down"></i></button>
+      <footer id="input-area">
+        <textarea id="prompt" placeholder="Type your message..." rows="1"></textarea>
+        <button id="send-button"><i class="fas fa-paper-plane"></i></button>
+      </footer>
+    </main>
+    <!-- Settings Modal -->
+    <div id="settings-modal">
+      <div id="settings-content">
+        <h2><i class="fas fa-cog"></i> Settings</h2>
+        <label for="model-select">AI Model</label>
+        <select id="model-select">
+          <option value="openrouter:openai/gpt-4o-mini">GPT-4o Mini (OpenAI)</option>
+          <option value="openrouter:anthropic/claude-3.7-sonnet">Claude 3.7 Sonnet (Anthropic)</option>
+          <option value="openrouter:meta-llama/llama-3.1-8b-instruct">Llama 3.1 (Meta)</option>
+        </select>
+        <label for="system-prompt">System Prompt</label>
+        <input id="system-prompt" placeholder="e.g. 'You are a helpful assistant'" />
+        <label for="context-window">Context Window (messages to remember)</label>
+        <input id="context-window" type="number" min="2" max="30" value="10" />
+        <div class="actions">
+          <button class="cancel" id="cancel-settings">Cancel</button>
+          <button id="save-settings"><i class="fas fa-save"></i> Save</button>
+        </div>
+      </div>
     </div>
+  </div>
+  <script src="https://js.puter.com/v2/"></script>
+  <script>
+    // ========== State ==========
+    let chats = [];
+    let chatId = null;
+    let settings = {
+      model: "openrouter:openai/gpt-4o-mini",
+      systemPrompt: "",
+      contextWindow: 10,
+      theme: "light"
+    };
 
-    <script src="https://js.puter.com/v2/"></script>
-    <script src="app.js"></script>
+    // ========== Storage ==========
+    function saveAll() {
+      localStorage.setItem("aichat-chats", JSON.stringify(chats));
+      localStorage.setItem("aichat-current", chatId);
+      localStorage.setItem("aichat-settings", JSON.stringify(settings));
+    }
+    function loadAll() {
+      chats = JSON.parse(localStorage.getItem("aichat-chats") || "[]");
+      chatId = localStorage.getItem("aichat-current") || null;
+      let s = localStorage.getItem("aichat-settings");
+      if (s) settings = {...settings, ...JSON.parse(s)};
+    }
+
+    // ========== Theme ==========
+    function setTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme === "dark" ? "dark" : "light");
+      settings.theme = theme;
+      document.getElementById("theme-toggle").innerHTML = theme === "dark"
+        ? '<i class="fas fa-sun"></i>'
+        : '<i class="fas fa-moon"></i>';
+      saveAll();
+    }
+    // ========== Side Panel ==========
+    const sidePanel = document.getElementById("side-panel");
+    function openSide() { sidePanel.classList.add("open"); }
+    function closeSide() { sidePanel.classList.remove("open"); }
+    document.getElementById("open-side").onclick = openSide;
+    document.getElementById("close-side").onclick = closeSide;
+    // On desktop, always open
+    if (window.innerWidth >= 800) openSide();
+
+    // ========== Settings ==========
+    function openSettings() {
+      document.getElementById("settings-modal").classList.add("open");
+      document.getElementById("model-select").value = settings.model;
+      document.getElementById("system-prompt").value = settings.systemPrompt;
+      document.getElementById("context-window").value = settings.contextWindow;
+    }
+    function closeSettings() {
+      document.getElementById("settings-modal").classList.remove("open");
+    }
+    document.getElementById("open-settings").onclick = openSettings;
+    document.getElementById("open-settings2").onclick = openSettings;
+    document.getElementById("cancel-settings").onclick = closeSettings;
+    document.getElementById("settings-modal").onclick = function(e) {
+      if (e.target === this) closeSettings();
+    };
+    document.getElementById("save-settings").onclick = function() {
+      settings.model = document.getElementById("model-select").value;
+      settings.systemPrompt = document.getElementById("system-prompt").value.trim();
+      settings.contextWindow = Math.max(2, Math.min(30, parseInt(document.getElementById("context-window").value) || 10));
+      setTheme(settings.theme);
+      closeSettings();
+      saveAll();
+    };
+
+    // Theme toggle
+    document.getElementById("theme-toggle").onclick = function() {
+      setTheme(settings.theme === "dark" ? "light" : "dark");
+    };
+
+    // ========== Chat Management ==========
+    function createChat(title) {
+      const id = "chat_" + Date.now();
+      chats.unshift({id, title: title || "New Chat", messages: []});
+      chatId = id;
+      saveAll();
+      renderChatsList();
+      renderChat();
+      closeSide();
+    }
+    function deleteChat(id) {
+      const idx = chats.findIndex(c => c.id === id);
+      if (idx > -1) {
+        chats.splice(idx, 1);
+        if (chatId === id) {
+          chatId = chats.length ? chats[0].id : null;
+        }
+        saveAll();
+        renderChatsList();
+        renderChat();
+      }
+    }
+    function renameChat(id, newTitle) {
+      const chat = chats.find(c => c.id === id);
+      if (chat) { chat.title = newTitle; saveAll(); renderChatsList(); }
+    }
+    function getCurrentChat() {
+      return chats.find(c => c.id === chatId);
+    }
+
+    // ========== UI Rendering ==========
+    function renderChatsList() {
+      const list = document.getElementById("chats-list");
+      list.innerHTML = "";
+      if (!chats.length) {
+        list.innerHTML = `<div style="padding:30px 0;text-align:center;color:#b0b8c6;">No chats yet.<br><br><button id="first-new" style="padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;border:none;">Start New Chat</button></div>`;
+        document.getElementById("first-new").onclick = () => createChat("New Chat");
+        return;
+      }
+      chats.forEach(chat => {
+        const div = document.createElement("div");
+        div.className = "chat-item" + (chat.id === chatId ? " active" : "");
+        div.innerHTML = `<i class="fas fa-comments"></i>
+          <span class="title" contenteditable="true">${escapeHTML(chat.title)}</span>
+          <button class="delete-chat" title="Delete"><i class="fas fa-trash"></i></button>`;
+        div.onclick = (e) => {
+          if (e.target.closest(".delete-chat")) return;
+          chatId = chat.id;
+          saveAll();
+          renderChatsList();
+          renderChat();
+          closeSide();
+        };
+        div.querySelector(".delete-chat").onclick = (e) => {
+          e.stopPropagation();
+          if (confirm("Delete this chat?")) deleteChat(chat.id);
+        };
+        // Inline rename
+        div.querySelector(".title").onblur = (e) => {
+          renameChat(chat.id, e.target.innerText.trim() || "Untitled Chat");
+        };
+        list.appendChild(div);
+      });
+    }
+    function renderChat() {
+      const chat = getCurrentChat();
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML = "";
+      if (!chat) {
+        chatBox.innerHTML = `<div style="padding:40px 0;text-align:center;color:#b0b8c6;">No chat selected.<br>Start a new chat!</div>`;
+        return;
+      }
+      chat.messages.forEach((msg, idx) => {
+        chatBox.appendChild(createMessageRow(msg, idx));
+      });
+      scrollToBottom();
+    }
+    function createMessageRow(msg, idx) {
+      const row = document.createElement("div");
+      row.className = "message-row " + (msg.role === "user" ? "user" : "ai");
+      const avatar = document.createElement("div");
+      avatar.className = "avatar";
+      avatar.innerHTML = msg.role === "user"
+        ? '<i class="fas fa-user"></i>'
+        : '<i class="fas fa-robot"></i>';
+      const bubble = document.createElement("div");
+      bubble.className = "message-bubble";
+      bubble.innerHTML = escapeHTML(msg.content).replace(/\n/g, '<br>');
+      // Actions
+      const actions = document.createElement("div");
+      actions.className = "message-actions";
+      // Copy
+      const copyBtn = document.createElement("button");
+      copyBtn.title = "Copy";
+      copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(msg.content);
+        copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+        setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i>', 1000);
+      };
+      actions.appendChild(copyBtn);
+      // Edit (user only)
+      if (msg.role === "user") {
+        const editBtn = document.createElement("button");
+        editBtn.title = "Edit & regenerate";
+        editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+        editBtn.onclick = () => editMessage(idx);
+        actions.appendChild(editBtn);
+      }
+      // Regenerate (AI only)
+      if (msg.role === "assistant") {
+        const regenBtn = document.createElement("button");
+        regenBtn.title = "Regenerate";
+        regenBtn.innerHTML = '<i class="fas fa-sync"></i>';
+        regenBtn.onclick = () => regenerateMessage(idx);
+        actions.appendChild(regenBtn);
+      }
+      // Delete
+      const delBtn = document.createElement("button");
+      delBtn.title = "Delete";
+      delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+      delBtn.onclick = () => deleteMessage(idx);
+      actions.appendChild(delBtn);
+
+      bubble.appendChild(actions);
+      row.appendChild(avatar);
+      row.appendChild(bubble);
+      return row;
+    }
+    function escapeHTML(str) {
+      return (str || "").replace(/[&<>"']/g, m =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    // Typing indicator
+    let typingEl = null;
+    function showTyping() {
+      if (typingEl) return;
+      typingEl = document.createElement("div");
+      typingEl.className = "typing-indicator";
+      typingEl.textContent = "AI is typing...";
+      document.getElementById("chat-box").appendChild(typingEl);
+      scrollToBottom();
+    }
+    function hideTyping() {
+      if (typingEl) typingEl.remove();
+      typingEl = null;
+    }
+    // Scroll-to-bottom
+    function scrollToBottom(force = false) {
+      const chatBox = document.getElementById("chat-box");
+      if (force || chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 80) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+      // Show scroll-to-bottom button if not at bottom
+      const btn = document.getElementById("scroll-bottom");
+      if (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight > 80) {
+        btn.style.display = "";
+      } else {
+        btn.style.display = "none";
+      }
+    }
+    document.getElementById("chat-box").onscroll = () => scrollToBottom();
+    document.getElementById("scroll-bottom").onclick = () => scrollToBottom(true);
+
+    // ========== Message Actions ==========
+    function editMessage(idx) {
+      const chat = getCurrentChat();
+      document.getElementById("prompt").value = chat.messages[idx].content;
+      document.getElementById("prompt").focus();
+      // Remove everything after this message (including AI reply)
+      chat.messages = chat.messages.slice(0, idx);
+      saveAll();
+      renderChat();
+    }
+    function regenerateMessage(idx) {
+      // Remove this AI message, and send previous user message again
+      const chat = getCurrentChat();
+      if (chat.messages[idx].role !== "assistant") return;
+      chat.messages = chat.messages.slice(0, idx);
+      saveAll();
+      renderChat();
+      sendPrompt(chat.messages[chat.messages.length-1].content, true);
+    }
+    function deleteMessage(idx) {
+      const chat = getCurrentChat();
+      chat.messages.splice(idx, 1);
+      saveAll();
+      renderChat();
+    }
+
+    // ========== Chat Logic ==========
+    let aiController = null;
+    async function sendPrompt(prompt, isRegenerate = false) {
+      prompt = (prompt || document.getElementById("prompt").value).trim();
+      if (!prompt) return;
+      document.getElementById("send-button").disabled = true;
+      document.getElementById("prompt").value = "";
+      let chat = getCurrentChat();
+      if (!chat) {
+        createChat("New Chat");
+        chat = getCurrentChat();
+      }
+      // Add user message
+      if (!isRegenerate) {
+        chat.messages.push({ role: "user", content: prompt });
+        saveAll();
+        renderChat();
+      }
+      showTyping();
+      // Compose context
+      let context = [];
+      if (settings.systemPrompt) context.push({ role: "system", content: settings.systemPrompt });
+      context = context.concat(chat.messages.slice(-settings.contextWindow));
+      // Streaming
+      try {
+        aiController = new AbortController();
+        let aiMsg = { role: "assistant", content: "" };
+        chat.messages.push(aiMsg);
+        renderChat();
+        let idx = chat.messages.length - 1;
+        // Streaming with puter.js
+        let stream = await puter.ai.chat(context, { model: settings.model, stream: true, signal: aiController.signal });
+        for await (const chunk of stream) {
+          // --- FIX: Handle string, array, or object chunks ---
+          let text = '';
+          if (typeof chunk === "string") {
+            text = chunk;
+          } else if (Array.isArray(chunk)) {
+            text = chunk.map(obj => obj.text || '').join('');
+          } else if (typeof chunk === "object" && chunk !== null) {
+            text = chunk.text || '';
+          }
+          aiMsg.content += text;
+          // Update only last message
+          const chatBox = document.getElementById("chat-box");
+          const bubbles = chatBox.querySelectorAll(".message-bubble");
+          if (bubbles.length) {
+            bubbles[bubbles.length-1].innerHTML = escapeHTML(aiMsg.content).replace(/\n/g, '<br>');
+          }
+          scrollToBottom();
+        }
+        hideTyping();
+        saveAll();
+        renderChat();
+      } catch (error) {
+        hideTyping();
+        // Remove the last (empty) ai message
+        chat.messages.pop();
+        chat.messages.push({ role: "assistant", content: "❌ Error: " + (error.message || "Something went wrong. Please try again.") });
+        saveAll();
+        renderChat();
+      }
+      document.getElementById("send-button").disabled = false;
+      aiController = null;
+    }
+
+    // ========== Input Handling ==========
+    document.getElementById("send-button").onclick = () => sendPrompt();
+    document.getElementById("prompt").addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendPrompt();
+      }
+    });
+    // New chat
+    document.getElementById("new-chat").onclick = () => createChat("New Chat");
+
+    // ========== On Load ==========
+    loadAll();
+    setTheme(settings.theme);
+    renderChatsList();
+    renderChat();
+    setTimeout(()=>document.getElementById("prompt").focus(), 300);
+
+    // Optional: clear chat on double-click header
+    document.getElementById("main-header").ondblclick = () => {
+      if (confirm("Clear conversation?")) {
+        const chat = getCurrentChat();
+        if (chat) chat.messages = [];
+        saveAll();
+        renderChat();
+      }
+    };
+
+    // Accessibility: focus textarea on load
+    setTimeout(()=>document.getElementById("prompt").focus(), 400);
+
+    // Mobile: close side panel on resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth >= 800) openSide();
+      else closeSide();
+    });
+  </script>
 </body>
 </html>
